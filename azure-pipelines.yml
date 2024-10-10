@@ -71,7 +71,7 @@ stages:
   dependsOn: Build
   condition: succeeded()
   jobs:
-  - deployment: Deploy
+  - deployment: DevDeploy
     displayName: 'Deploy job'
     pool:
       vmImage: 'ubuntu-20.04'
@@ -95,7 +95,7 @@ stages:
   displayName: 'Deploy to the staging environment'
   dependsOn: Dev
   jobs:
-  - deployment: Deploy
+  - deployment: StageDeploy
     pool:
       vmImage: 'ubuntu-20.04'
     environment: staging
@@ -114,3 +114,30 @@ stages:
               appType: 'webAppLinux'
               appName: '$(WebAppNameStaging)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+- stage: 'Production'
+  displayName: 'Deploy to the staging environment'
+  dependsOn: Staging
+  jobs:
+  - deployment: ProdDeploy
+    pool:
+      vmImage: 'ubuntu-20.04'
+    environment: Production
+    variables:
+    - group: 'Release'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+          - task: AzureWebApp@1
+            displayName: 'Azure App Service Deploy: Production website'
+            inputs:
+              azureSubscription: 'Pay-As-You-Go(230f7cb4-04aa-4155-bc5d-b96e8ae93753)'
+              appType: 'webAppLinux'
+              appName: 'myprodstage11647'
+              deployToSlotOrASE: true
+              resourceGroupName: 'mymultipipeline-rg'
+              slotName: 'secondary-slot'
+              package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
