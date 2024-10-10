@@ -138,6 +138,6 @@ stages:
               appName: 'myprodstage11647'
               deployToSlotOrASE: true
               resourceGroupName: 'mymultipipeline-rg'
-              slotName: 'myprodstage11647'
+              slotName: 'myprodstage11647Production'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
